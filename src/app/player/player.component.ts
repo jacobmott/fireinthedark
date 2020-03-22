@@ -11,11 +11,8 @@ export class PlayerComponent implements OnInit {
 
   constructor() { }
 
-  positionDetails: string = "style = position: absolute; width=30px; height=30px; background-color:lightblue; ";
-  positionClass: string = "";
   xPos: number = 0;
   yPos: number = 0;
-  playerElement: HTMLElement;
   currentStyles: object;
   speed: number = 5;
   keyDown: object = {};
@@ -31,7 +28,6 @@ export class PlayerComponent implements OnInit {
       'top' : this.yPos+'px'
     };
 
-    this.playerElement = <HTMLElement>document.getElementById("playerElement");
     this.speed = 5;
     this.keyDown = {};
     this.gameLoop();
