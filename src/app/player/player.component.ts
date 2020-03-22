@@ -16,14 +16,19 @@ export class PlayerComponent implements OnInit {
   enemies: Map<string, Player> = new Map<string, Player>();
   initialized: boolean = false; 
   createEnemiesCall;
+  readonly FPS: number = 100;
+  readonly PLAYER_SPEED: number = 500;
+  readonly ENEMY_SPEED: number = 100;
 
   ngOnInit() {
+
+    this.enemies = new Map<string, Player>();
 
     let rect: Rect = { 
     x: 0,
     y: 0,
-    width: 60,
-    height: 60 };
+    width: 100,
+    height: 100 };
 
     let playerState = {     
       position:  'absolute',  
@@ -37,7 +42,7 @@ export class PlayerComponent implements OnInit {
     this.player = {
       rect: rect,
       name: "Jake",
-      speed: 5.0,
+      speed: this.PLAYER_SPEED,
       state: playerState,
       dead: false
     }
@@ -66,16 +71,16 @@ export class PlayerComponent implements OnInit {
   gameLoop() {
       this.gameLoopF = setInterval(() => {
         if(this.keyDown["d"]) {
-          this.player.rect.x += this.player.speed;
+          this.player.rect.x += this.player.speed/this.FPS;
         }
         if(this.keyDown["a"]) {
-          this.player.rect.x -= this.player.speed;
+          this.player.rect.x -= this.player.speed/this.FPS;
         }
         if(this.keyDown["w"]) {
-          this.player.rect.y -=  this.player.speed;
+          this.player.rect.y -=  this.player.speed/this.FPS;
         }
         if(this.keyDown["s"]) {
-          this.player.rect.y +=  this.player.speed;
+          this.player.rect.y +=  this.player.speed/this.FPS;
         }
     
         this.player.state.left = this.player.rect.x+"px";
@@ -85,6 +90,7 @@ export class PlayerComponent implements OnInit {
         // also redraw/animate any objects not controlled by the user
         
         this.didCollideWithAnything();
+        this.handleAI();
       }, 10);
 
   }
@@ -105,13 +111,18 @@ export class PlayerComponent implements OnInit {
   createEnemies(){
     //
 
+    if ( !(typeof this.enemies === 'undefined') && !(this.enemies.size == 0)){
+      if (!this.enemies.get("Freedy").dead){
+        return;
+      }
+    }
     this.enemies = new Map<string, Player>();
 
     let rect: Rect = { 
       x: 400,
       y: 400,
-      width: 60,
-      height: 60 };
+      width: 100,
+      height: 100 };
 
     let enemyState: State = {
       position:  'absolute',  
@@ -126,7 +137,7 @@ export class PlayerComponent implements OnInit {
     let enemy: Player = {
       rect: rect,
       name: "Freddy",
-      speed: 2,
+      speed: this.ENEMY_SPEED,
       state: enemyState,
       dead: false
     }
@@ -148,13 +159,15 @@ export class PlayerComponent implements OnInit {
        return false;
      }
 
-    this.enemies.forEach((value: Player, key: string) => {
-      if(didCollide(this.player.rect, value.rect)){
-        if (value.dead){
+    this.enemies.forEach((enemy: Player, key: string) => {
+      if(didCollide(this.player.rect, enemy.rect)){
+        if (enemy.dead){
         }
         else{
-          value.dead = true;
-          value.state.display ='none';
+          enemy.dead = true;
+          enemy.state.display ='none';
+          enemy.rect.x = 0;
+          enemy.rect.y = 0;
           //For now.. lets just respawn the enemies back after 5 seconds
           this.createEnemiesCall = setInterval(() => {        
             this.createEnemies();
@@ -162,6 +175,62 @@ export class PlayerComponent implements OnInit {
        }
 
       }
+    });
+
+
+  }
+
+
+
+  handleAI(){
+
+    function updateEnemyState(enemy: Player){
+    
+      let rect: Rect = { 
+        x: enemy.rect.x,
+        y: enemy.rect.y,
+        width: enemy.rect.width,
+        height: enemy.rect.height };
+  
+      let enemyState: State = {
+        position:  'absolute',  
+        color: 'lightblue',     
+        width:  rect.width+'px',
+        height:  rect.height+'px',
+        left: rect.x+'px',
+        top: rect.y+'px',
+        display: 'block'
+      };
+
+      enemy.rect = rect;
+      enemy.state = enemyState;
+
+    }
+
+
+
+    function moveTowardPlayer(player: Player, enemy: Player, FPS: number){
+      if (enemy.rect.x < player.rect.x){
+        enemy.rect.x += enemy.speed/FPS;
+      }
+      else if (enemy.rect.x > player.rect.x){
+        enemy.rect.x -= enemy.speed/FPS;
+      }
+
+      if (enemy.rect.y < player.rect.y){
+        enemy.rect.y +=  enemy.speed/FPS;
+
+      }
+      else if (enemy.rect.y > player.rect.y){
+        enemy.rect.y -=  enemy.speed/FPS;
+      }
+
+      updateEnemyState(enemy);
+
+    }
+
+    this.enemies.forEach((enemy: Player, key: string) => {
+      moveTowardPlayer(this.player, enemy,this.FPS);
     });
 
 
