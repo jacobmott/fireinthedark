@@ -1,0 +1,15 @@
+.playerComp{
+  z-index: 1;
+  position: relative;
+  float: left;
+  width: 100%;
+  background-color: #008000;
+  height: 3000px;
+  width: 100%;
+  top:0;
+  left:0;
+}
+
+.debug{
+  display: none;
+}

@@ -1,2 +1,11 @@
-<input *ngIf="initialized" type="image" id="playerElement" [ngStyle]="getPlayerState()" src="assets/player.png" onblur="onblur()">
-<input *ngIf="initialized" type="image" id="enemy" [ngStyle]="getEnemyState()" src="assets/monster.png" onblur="onblur()">
+
+<div class="playerComp">
+  <input *ngIf="initialized" type="image" id="playerElement" [ngStyle]="getPlayerState()" src="assets/player.png" onblur="onblur()">
+  <input *ngIf="initialized" type="image" id="enemy" [ngStyle]="getEnemyState()" src="assets/monster.png" onblur="onblur()">
+  <div class="debug">
+    <div>{{getEnemyStateJSON()}}</div>
+    <div>{{enemiesCreation}}</div>
+    <div>{{enemiesNotCreation}}</div>
+    <div>{{callCreate}}</div>
+  </div>
+</div>

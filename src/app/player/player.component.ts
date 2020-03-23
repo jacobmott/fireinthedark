@@ -19,7 +19,11 @@ export class PlayerComponent implements OnInit {
   readonly FPS: number = 100;
   readonly PLAYER_SPEED: number = 500;
   readonly ENEMY_SPEED: number = 100;
-
+  enemiesCreation: number = 0;
+  enemiesNotCreation: number = 0;
+  callCreate: number = 0;
+  
+  
   ngOnInit() {
 
     this.enemies = new Map<string, Player>();
@@ -47,26 +51,42 @@ export class PlayerComponent implements OnInit {
       dead: false
     }
 
-    this.createEnemies();
-
-
     this.keyDown = {};
 
-
-
     this.gameLoop();
+    this.createEnemiesA();
+    this.createEnemies();
     this.initialized = true;
   }
 
+  getEnemyStateJSON(){
+    if (this.enemies.get("Freddy")){
+      return JSON.stringify(this.enemies.get("Freddy"));
+    }
+    return {};
+  }
+  
 
   getPlayerState(){
-    return this.player.state;
+    if (this.player){
+      return this.player.state;
+    }
+    return;
   }
 
   getEnemyState(){
-    return this.enemies.get("Freddy").state;
+    if (this.enemies){
+      if (this.enemies.get("Freddy")){
+        return this.enemies.get("Freddy").state;
+      }
+    }
+    return;
   }
   
+  createEnemies() {
+    //For now.. lets just respawn the enemies back after 5 seconds
+    this.createEnemiesCall = setInterval(() => { this.createEnemiesA(); }, 5000);
+  }
 
   gameLoop() {
       this.gameLoopF = setInterval(() => {
@@ -106,14 +126,25 @@ export class PlayerComponent implements OnInit {
     e = e || event; // to deal with IE
     this.keyDown[e.key] = true;
   }
+  getEnemiesCreation(){
+    return this.enemiesCreation;
+  }
+  getEnemiesNotCreation(){
+    return this.enemiesNotCreation;
+  }
 
-
-  createEnemies(){
+  createEnemiesA(){
     //
-
-    if ( !(typeof this.enemies === 'undefined') && !(this.enemies.size == 0)){
-      if (!this.enemies.get("Freedy").dead){
-        return;
+    this.callCreate = this.callCreate+1;
+    if ( (this.enemies) && this.enemies.size > 0 ){
+      if ( this.enemies.has("Freddy") ){
+        if (this.enemies.get("Freddy").dead){
+          this.enemiesCreation = this.enemiesCreation+1;
+        }
+        else{
+          this.enemiesNotCreation = this.enemiesNotCreation+1;
+          return;
+        }
       }
     }
     this.enemies = new Map<string, Player>();
@@ -127,8 +158,8 @@ export class PlayerComponent implements OnInit {
     let enemyState: State = {
       position:  'absolute',  
       color: 'lightblue',     
-      width:  '100px',
-      height:  '100px',
+      width:  rect.width+'px',
+      height:  rect.height+'px',
       left: rect.x+'px',
       top: rect.y+'px',
       display: 'block'
@@ -141,7 +172,7 @@ export class PlayerComponent implements OnInit {
       state: enemyState,
       dead: false
     }
-    let myMap = new Map();
+
     this.enemies.set(enemy.name, enemy);
 
   }
@@ -168,13 +199,8 @@ export class PlayerComponent implements OnInit {
           enemy.state.display ='none';
           enemy.rect.x = 0;
           enemy.rect.y = 0;
-          //For now.. lets just respawn the enemies back after 5 seconds
-          this.createEnemiesCall = setInterval(() => {        
-            this.createEnemies();
-          }, 5000);
        }
-
-      }
+     }
     });
 
 
@@ -230,7 +256,12 @@ export class PlayerComponent implements OnInit {
     }
 
     this.enemies.forEach((enemy: Player, key: string) => {
-      moveTowardPlayer(this.player, enemy,this.FPS);
+      if (enemy.dead){
+
+      }
+      else{
+        moveTowardPlayer(this.player, enemy,this.FPS);
+      }
     });
 
 
