@@ -21,5 +21,6 @@ export interface Player {
   name: string;
   dead: boolean;
   state: State;
+  img: string
 }
 

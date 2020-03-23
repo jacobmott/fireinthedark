@@ -48,14 +48,14 @@ export class PlayerComponent implements OnInit {
       name: "Jake",
       speed: this.PLAYER_SPEED,
       state: playerState,
-      dead: false
+      dead: false,
+      img: "assets/player.png"
     }
 
     this.keyDown = {};
 
     this.gameLoop();
     this.createEnemiesA();
-    this.createEnemies();
     this.initialized = true;
   }
 
@@ -83,10 +83,6 @@ export class PlayerComponent implements OnInit {
     return;
   }
   
-  createEnemies() {
-    //For now.. lets just respawn the enemies back after 5 seconds
-    this.createEnemiesCall = setInterval(() => { this.createEnemiesA(); }, 5000);
-  }
 
   gameLoop() {
       this.gameLoopF = setInterval(() => {
@@ -132,17 +128,27 @@ export class PlayerComponent implements OnInit {
   getEnemiesNotCreation(){
     return this.enemiesNotCreation;
   }
-
-  createEnemiesA(){
-    //
-    this.callCreate = this.callCreate+1;
+  getEnemySource(){
     if ( (this.enemies) && this.enemies.size > 0 ){
       if ( this.enemies.has("Freddy") ){
         if (this.enemies.get("Freddy").dead){
-          this.enemiesCreation = this.enemiesCreation+1;
+         this.enemies.get("Freddy").img = 'assets/monster-dead.png';
         }
         else{
-          this.enemiesNotCreation = this.enemiesNotCreation+1;
+          this.enemies.get("Freddy").img = 'assets/monster.png';
+        }
+      }
+    }
+    return  this.enemies.get("Freddy").img;
+  }
+
+  createEnemiesA(){
+    //
+    if ( (this.enemies) && this.enemies.size > 0 ){
+      if ( this.enemies.has("Freddy") ){
+        if (this.enemies.get("Freddy").dead){
+        }
+        else{
           return;
         }
       }
@@ -170,7 +176,8 @@ export class PlayerComponent implements OnInit {
       name: "Freddy",
       speed: this.ENEMY_SPEED,
       state: enemyState,
-      dead: false
+      dead: false,
+      img: "assets/monster.png"
     }
 
     this.enemies.set(enemy.name, enemy);
@@ -196,9 +203,9 @@ export class PlayerComponent implements OnInit {
         }
         else{
           enemy.dead = true;
-          enemy.state.display ='none';
           enemy.rect.x = 0;
           enemy.rect.y = 0;
+          this.createEnemiesCall = setTimeout(() => { this.createEnemiesA(); }, 5000);
        }
      }
     });
@@ -231,6 +238,7 @@ export class PlayerComponent implements OnInit {
       enemy.rect = rect;
       enemy.state = enemyState;
 
+
     }
 
 
@@ -257,9 +265,11 @@ export class PlayerComponent implements OnInit {
 
     this.enemies.forEach((enemy: Player, key: string) => {
       if (enemy.dead){
-
+        enemy.img = 'assets/monster-dead.png';
+        this.createEnemiesCall = setTimeout(() => { enemy.state.display ='none'; }, 5000);
       }
       else{
+        enemy.img = 'assets/monster.png';
         moveTowardPlayer(this.player, enemy,this.FPS);
       }
     });
