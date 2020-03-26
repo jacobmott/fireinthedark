@@ -17,9 +17,9 @@ export class PlayerComponent implements OnInit {
   initialized: boolean = false; 
   createEnemiesCall;
   readonly FPS: number = 100;
-  readonly PLAYER_SPEED: number = 500;
-  readonly ENEMY_SPEED: number = 100;
-  readonly BULLET_SPEED: number = 1200;
+  readonly PLAYER_SPEED: number = 800;
+  readonly ENEMY_SPEED: number = 300;
+  readonly BULLET_SPEED: number = 2000;
   enemiesCreation: number = 0;
   enemiesNotCreation: number = 0;
   callCreate: number = 0;
@@ -120,11 +120,28 @@ export class PlayerComponent implements OnInit {
 
         if(this.leftClick) {
           if (this.createNextBullet){
+            let xPos = this.player.rect.x;
+            let yPos = this.player.rect.y;      
             if (!bulletDirectionX && !bulletDirectionY){
               bulletDirectionX = -1;
             }
+
+            if (bulletDirectionX === 1){
+              xPos = this.player.rect.x + this.player.rect.width-50;
+            }
+            else if (bulletDirectionX === 0 || bulletDirectionX === -1){
+              xPos = this.player.rect.x;
+            }
+
+            if (bulletDirectionY === 1){
+              yPos = this.player.rect.y + this.player.rect.height-50;
+            }
+            else if (bulletDirectionY === 0 || bulletDirectionY === -1){
+              yPos = this.player.rect.y;
+            }
+
             this.createNextBulletTimer = setTimeout(() => { this.createNextBulletTimerF(); }, 200);
-            this.createNewBullet(bulletDirectionX, bulletDirectionY);
+            this.createNewBullet(bulletDirectionX, bulletDirectionY, xPos, yPos);
             this.createNextBullet = false;
           }
         }
@@ -176,13 +193,13 @@ export class PlayerComponent implements OnInit {
     this.keyDown[e.key] = true;
   }
 
-  createNewBullet(bulletDirectionX, bulletDirectionY){
+  createNewBullet(bulletDirectionX, bulletDirectionY, xPos, yPos){
   
     this.bulletsIds = this.bulletsIds+1;
     
     let rect: Rect = { 
-      x: this.player.rect.x,
-      y: this.player.rect.y,
+      x: xPos,
+      y: yPos,
       width: 20,
       height: 20 };
 
