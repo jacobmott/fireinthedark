@@ -5,6 +5,12 @@ export interface Rect {
   height: number;
 }
 
+
+export interface Direction {
+  x: number;
+  y: number;
+}
+
 export interface State {
   position: string,  
   color: string,     
@@ -19,8 +25,20 @@ export interface Player {
   rect: Rect;
   speed: number;
   name: string;
+  id: number;
   dead: boolean;
   state: State;
   img: string
 }
 
+
+export interface Bullet {
+  direction: Direction;
+  rect: Rect;
+  id: number;
+  speed: number;
+  name: string;
+  active: boolean;
+  state: State;
+  img: string
+}
