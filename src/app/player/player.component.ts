@@ -366,7 +366,7 @@ export class PlayerComponent implements OnInit {
 
       if(didCollide(this.player.rect, enemy.rect)){
         enemy.dead = true;
-        enemy.img = this.ENEMY_ALIVE_IMAGE
+        enemy.img = this.ENEMY_DEAD_IMAGE
         setTimeout(() => { this.removeEnemy(enemy.id); }, 6000);
       }
 
