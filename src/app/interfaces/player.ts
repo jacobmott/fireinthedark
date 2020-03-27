@@ -32,6 +32,17 @@ export interface Player {
 }
 
 
+export interface Item {
+  rect: Rect;
+  speed: number;
+  name: string;
+  id: number;
+  usedState: boolean;
+  state: State;
+  img: string
+}
+
+
 export interface Bullet {
   direction: Direction;
   rect: Rect;

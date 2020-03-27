@@ -1,10 +1,11 @@
 
 <div class="playerComp">
   <input *ngIf="initialized" type="image" id="playerElement" [ngStyle]="getPlayerState()" src="assets/player.png" onblur="onblur()">
-  <input *ngIf="initialized" type="image" id="enemy" [ngStyle]="getEnemyState()" [src]="getEnemySource()" onblur="onblur()">
+  <input type="image" *ngFor="let enemy of enemies | keyvalue" [ngStyle]="getEnemyState(enemy.value.id)" [src]="getEnemyImage(enemy.value.id)">
   <input type="image" *ngFor="let bullet of bullets | keyvalue" [ngStyle]="getBulletState(bullet.value.id)" [src]="getBulletImage(bullet.value.id)">
+  <input type="image" *ngFor="let item of worldItems | keyvalue" [ngStyle]="getItemState(item.value.id)" [src]="getItemImage(item.value.id)">
   <div class="debug">
-    <div>{{getEnemyStateJSON()}}</div>
+    <div>{{getEnemyStateJSON(0)}}</div>
     <div>{{enemiesCreation}}</div>
     <div>{{enemiesNotCreation}}</div>
   </div>

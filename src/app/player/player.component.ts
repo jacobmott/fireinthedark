@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {HostListener} from '@angular/core';
-import {Player, Rect, State, Bullet, Direction} from '../interfaces/player';
+import {Player, Rect, State, Bullet, Direction, Item} from '../interfaces/player';
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
@@ -13,15 +13,14 @@ export class PlayerComponent implements OnInit {
   player: Player;
   keyDown: object = {};
   gameLoopF;
-  enemies: Map<string, Player> = new Map<string, Player>();
+  enemies: Map<number, Player> = new Map<number, Player>();
   initialized: boolean = false; 
   createEnemiesCall;
   readonly FPS: number = 100;
   readonly PLAYER_SPEED: number = 800;
   readonly ENEMY_SPEED: number = 300;
   readonly BULLET_SPEED: number = 2000;
-  enemiesCreation: number = 0;
-  enemiesNotCreation: number = 0;
+  readonly ITEM_SPEED: number = 0;
   callCreate: number = 0;
   numberOfClicks: number = 0;
   leftClick: boolean = false;
@@ -31,11 +30,23 @@ export class PlayerComponent implements OnInit {
   createNextBullet: boolean = true;
   createNextBulletTimer;
   bulletsIds: number = 0;
-
+  enemyIds: number = 0;
+  worldItemIds: number = 0;
+  worldItems: Map<number, Item> = new Map<number, Item>();
+  createNextEnemyTimer;
+  readonly PLAYER_ALIVE_IMAGE: string = "assets/player.png";
+  readonly ENEMY_ALIVE_IMAGE: string = "assets/monster.png";  
+  readonly ENEMY_DEAD_IMAGE: string = "assets/monster-dead.png";  
+  readonly BULLET_IMAGE: string = "assets/bullet.png";
+  readonly ITEM_IMAGE: string = "assets/treasure-chest.png";
+  readonly ITEM_UNUSED_IMAGE: string = "assets/treasure-chest.png";
+  readonly ITEM_USED_IMAGE: string = "assets/treasure-chest-used.png";
+  
   ngOnInit() {
 
-    this.enemies = new Map<string, Player>();
+    this.enemies = new Map<number, Player>();
     this.bullets = new Map<number, Bullet>();
+    this.worldItems = new Map<number, Item>();    
 
     let rect: Rect = { 
     x: 0,
@@ -59,19 +70,19 @@ export class PlayerComponent implements OnInit {
       state: playerState,
       dead: false,
       id: 0,
-      img: "assets/player.png"
+      img: this.PLAYER_ALIVE_IMAGE
     }
 
     this.keyDown = {};
-
+    this.createItems();
     this.gameLoop();
-    this.createEnemiesA();
+    this.createNextEnemyTimer = setInterval(() => { this.addNewEnemy(400, 400); }, 3000);
     this.initialized = true;
   }
 
-  getEnemyStateJSON(){
-    if (this.enemies.get("Freddy")){
-      return JSON.stringify(this.enemies.get("Freddy"));
+  getEnemyStateJSON(id: number){
+    if (this.enemies.get(id)){
+      return JSON.stringify(this.enemies.get(id));
     }
     return {};
   }
@@ -83,18 +94,11 @@ export class PlayerComponent implements OnInit {
     }
     return;
   }
-
-  getEnemyState(){
-    if (this.enemies){
-      if (this.enemies.get("Freddy")){
-        return this.enemies.get("Freddy").state;
-      }
-    }
-    return;
-  }
   
 
   gameLoop() {
+
+
       this.gameLoopF = setInterval(() => {
 
         let bulletDirectionX = 0;
@@ -140,9 +144,9 @@ export class PlayerComponent implements OnInit {
               yPos = this.player.rect.y;
             }
 
-            this.createNextBulletTimer = setTimeout(() => { this.createNextBulletTimerF(); }, 200);
             this.createNewBullet(bulletDirectionX, bulletDirectionY, xPos, yPos);
             this.createNextBullet = false;
+            this.createNextBulletTimer = setTimeout(() => { this.createNextBulletTimerF(); }, 200);
           }
         }
 
@@ -152,7 +156,7 @@ export class PlayerComponent implements OnInit {
     
         // redraw/reposition your object here
         // also redraw/animate any objects not controlled by the user
-        
+
         this.didCollideWithAnything();
         this.handleAI();
         this.updateBullets();
@@ -160,10 +164,59 @@ export class PlayerComponent implements OnInit {
 
   }
 
-
   createNextBulletTimerF(){
     this.createNextBullet = true;
   }
+
+  createItems(){
+    for (let i = 0; i < 5; i++) {
+      let xPos: number = this.getRandomInt(0,1000);
+      let yPos: number = this.getRandomInt(0,1000);
+      this.createNewItem(xPos,yPos);
+    }
+  }
+
+
+  getRandomInt(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+  }
+  
+  createNewItem(xPos: number, yPos: number){
+  
+    this.worldItemIds = this.worldItemIds+1;
+
+    let rect: Rect = { 
+      x: xPos,
+      y: yPos,
+      width: 100,
+      height: 100 };
+
+    let itemState: State = {
+      position:  'absolute',  
+      color: 'lightblue',     
+      width:  rect.width+'px',
+      height:  rect.height+'px',
+      left: rect.x+'px',
+      top: rect.y+'px',
+      display: 'block'
+    };
+
+    let item: Item = {
+      rect: rect,
+      name: "Item"+this.worldItemIds,
+      id: this.worldItemIds,
+      speed: this.ITEM_SPEED,
+      state: itemState,
+      usedState: false,
+      img: this.ITEM_UNUSED_IMAGE
+    }
+
+    this.worldItems.set(item.id, item);
+  }
+
+
 
 
   @HostListener('document:mousedown', ['$event'])
@@ -225,7 +278,7 @@ export class PlayerComponent implements OnInit {
       state: bulletState,
       id: this.bulletsIds,
       active: true,
-      img: "assets/bullet.png"
+      img: this.BULLET_IMAGE
     }
   
     this.bullets.set(bullet.id, bullet);
@@ -260,44 +313,13 @@ export class PlayerComponent implements OnInit {
     }); 
   }
 
-
-  getEnemiesCreation(){
-    return this.enemiesCreation;
-  }
-  getEnemiesNotCreation(){
-    return this.enemiesNotCreation;
-  }
-
-  getEnemySource(){
-    if ( (this.enemies) && this.enemies.size > 0 ){
-      if ( this.enemies.has("Freddy") ){
-        if (this.enemies.get("Freddy").dead){
-         this.enemies.get("Freddy").img = 'assets/monster-dead.png';
-        }
-        else{
-          this.enemies.get("Freddy").img = 'assets/monster.png';
-        }
-      }
-    }
-    return  this.enemies.get("Freddy").img;
-  }
-
-  createEnemiesA(){
-    //
-    if ( (this.enemies) && this.enemies.size > 0 ){
-      if ( this.enemies.has("Freddy") ){
-        if (this.enemies.get("Freddy").dead){
-        }
-        else{
-          return;
-        }
-      }
-    }
-    this.enemies = new Map<string, Player>();
+  addNewEnemy(xPos: number, yPos: number){
+  
+    this.enemyIds = this.enemyIds+1;
 
     let rect: Rect = { 
-      x: 400,
-      y: 400,
+      x: xPos,
+      y: yPos,
       width: 100,
       height: 100 };
 
@@ -313,18 +335,20 @@ export class PlayerComponent implements OnInit {
 
     let enemy: Player = {
       rect: rect,
-      name: "Freddy",
-      id: 0,
+      name: "Enemy"+this.enemyIds,
+      id: this.enemyIds,
       speed: this.ENEMY_SPEED,
       state: enemyState,
       dead: false,
-      img: "assets/monster.png"
+      img: this.ENEMY_ALIVE_IMAGE
     }
 
-    this.enemies.set(enemy.name, enemy);
-
+    this.enemies.set(enemy.id, enemy);
   }
 
+  removeEnemy(id: number){
+    this.enemies.delete(id);
+  }
 
   didCollideWithAnything(){
 
@@ -337,38 +361,43 @@ export class PlayerComponent implements OnInit {
       }
        return false;
     }
-    let recreateEnemy: boolean = false;
-    this.enemies.forEach((enemy: Player, key: string) => {
+
+    this.enemies.forEach((enemy: Player, key: number) => {
+
       if(didCollide(this.player.rect, enemy.rect)){
-        if (enemy.dead){
-        }
-        else{
-          enemy.dead = true;
-          enemy.rect.x = 0;
-          enemy.rect.y = 0;
-          recreateEnemy = true;
-       }
-     }
-     this.bullets.forEach((bullet: Bullet, key: number) => {
-      if(didCollide(enemy.rect, bullet.rect)){
-        if (enemy.dead){
-        }
-        else{
-          enemy.dead = true;
-          enemy.rect.x = 0;
-          enemy.rect.y = 0;
-          recreateEnemy = true;
-          bullet.active = false;
-          this.bullets.delete(bullet.id);
-          bullet.state.display = 'none';
-        }
+        enemy.dead = true;
+        enemy.img = this.ENEMY_ALIVE_IMAGE
+        setTimeout(() => { this.removeEnemy(enemy.id); }, 6000);
       }
-    })
-    if (recreateEnemy){
-      this.createEnemiesCall = setTimeout(() => { this.createEnemiesA(); }, 5000);
-    }
+
+     if (enemy.dead){
+     }
+     else{
+       this.bullets.forEach((bullet: Bullet, key: number) => {
+         if(didCollide(enemy.rect, bullet.rect)){
+           enemy.dead = true;
+           bullet.active = false;
+           bullet.state.display = 'none';
+           this.bullets.delete(bullet.id);
+           enemy.img = this.ENEMY_DEAD_IMAGE
+           setTimeout(() => { this.removeEnemy(enemy.id); }, 6000);
+         }
+       })
+     }
 
    });
+
+
+
+   this.worldItems.forEach((item: Item, key: number) => {
+
+    if(didCollide(this.player.rect, item.rect)){
+      item.usedState = true;
+      item.img = this.ITEM_USED_IMAGE;
+      setTimeout(() => { this.removeEnemy(item.id); }, 6000);
+    }
+
+   });   
 
 
   }
@@ -379,6 +408,23 @@ export class PlayerComponent implements OnInit {
 
   getBulletState(id: number){
     return this.bullets.get(id).state;
+  }
+
+
+  getEnemyImage(id: number){
+    return this.enemies.get(id).img;
+  }
+
+  getEnemyState(id: number){
+    return this.enemies.get(id).state;
+  }
+
+  getItemImage(id: number){
+    return this.worldItems.get(id).img;
+  }
+
+  getItemState(id: number){
+    return this.worldItems.get(id).state;
   }
 
   handleAI(){
@@ -404,7 +450,6 @@ export class PlayerComponent implements OnInit {
       enemy.rect = rect;
       enemy.state = enemyState;
 
-
     }
 
 
@@ -429,13 +474,11 @@ export class PlayerComponent implements OnInit {
 
     }
 
-    this.enemies.forEach((enemy: Player, key: string) => {
-      if (enemy.dead){
-        enemy.img = 'assets/monster-dead.png';
-        this.createEnemiesCall = setTimeout(() => { enemy.state.display ='none'; }, 5000);
+    this.enemies.forEach((enemy: Player, key: number) => {
+      if(enemy.dead){
+
       }
       else{
-        enemy.img = 'assets/monster.png';
         moveTowardPlayer(this.player, enemy,this.FPS);
       }
     });
