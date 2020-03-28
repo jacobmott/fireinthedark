@@ -13,25 +13,21 @@
   display: none;
 }
 
-.debugClicks{
-  display: none;
-  z-index: 1;
-  position: relative;
-  float: left;
-  width: 20%;
-  background-color: #008000;
-  height: 3000px;
-  top:0;
-  right:300;
-}
-
 
 .playerHealth{
   z-index: 1;
-  position: relative;
-  float: right;
-  width: 10%;
-  height: 600px;
-  top:0;
-  left:0;
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  top:0px;
+  right:10px;
+}
+
+.playerInventory{
+  z-index: 1;
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  top:200px;
+  right:10px;
 }

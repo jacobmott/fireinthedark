@@ -4,7 +4,14 @@ import {Player, Rect, State, Bullet, Direction, Item} from '../interfaces/player
 import * as Highcharts from 'highcharts';
 // Load the exporting module.
 import Exporting from 'highcharts/modules/exporting';
-
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+  // ...
+} from '@angular/animations';
 
 
 
@@ -12,7 +19,10 @@ import Exporting from 'highcharts/modules/exporting';
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.css']
+  styleUrls: ['./player.component.css'],
+  animations: [
+    // animation triggers go here
+  ]
 })
 export class PlayerComponent implements OnInit {
 
@@ -42,6 +52,7 @@ export class PlayerComponent implements OnInit {
   worldItemIds: number = 0;
   worldItems: Map<number, Item> = new Map<number, Item>();
   createNextEnemyTimer;
+
   readonly PLAYER_ALIVE_IMAGE: string = "assets/player.png";
   readonly ENEMY_ALIVE_IMAGE: string = "assets/monster.png";  
   readonly ENEMY_DEAD_IMAGE: string = "assets/monster-dead.png";  
@@ -49,6 +60,8 @@ export class PlayerComponent implements OnInit {
   readonly ITEM_IMAGE: string = "assets/treasure-chest.png";
   readonly ITEM_UNUSED_IMAGE: string = "assets/treasure-chest.png";
   readonly ITEM_USED_IMAGE: string = "assets/treasure-chest-used.png";
+  readonly HEALTH_POTION_UNUSED_IMAGE: string = "assets/health-potion.png";
+
   Highcharts = Highcharts;
   playerHealthRemaining: number = 100.0;
   playerDamageTaken: number = 0;
@@ -56,6 +69,8 @@ export class PlayerComponent implements OnInit {
   chart: Highcharts.Chart;
   chartOptions: Highcharts.Options;
   canTakeDamage: boolean = true;
+  inventoryItems: Map<number, Item> = new Map<number, Item>();
+  invetoryItemIds: number = 0;
 
   ngOnInit() {
 
@@ -179,7 +194,6 @@ export class PlayerComponent implements OnInit {
     return;
   }
   
-
   canTakeDamageToggle(){
     this.canTakeDamage = true;
   }
@@ -298,12 +312,50 @@ export class PlayerComponent implements OnInit {
       speed: this.ITEM_SPEED,
       state: itemState,
       usedState: false,
-      img: this.ITEM_UNUSED_IMAGE
+      img: this.ITEM_UNUSED_IMAGE,
+      isContainer: true,
+      nestedItems: []
     }
+
+    let healthPotion: Item = this.createNewHealthPotionItem();
+    item.nestedItems.push(healthPotion);
 
     this.worldItems.set(item.id, item);
   }
 
+
+  createNewHealthPotionItem(): Item{
+
+    let rect: Rect = { 
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50 };
+
+    let itemState: State = {
+      position:  'absolute',  
+      color: 'lightblue',     
+      width:  rect.width+'px',
+      height:  rect.height+'px',
+      left: rect.x+'px',
+      top: rect.y+'px',
+      display: 'block'
+    };
+
+    let item: Item = {
+      rect: rect,
+      name: "HealthPotion",
+      id: 0,
+      speed: 0,
+      state: itemState,
+      usedState: false,
+      img: this.HEALTH_POTION_UNUSED_IMAGE,
+      isContainer: false,
+      nestedItems: []
+    }
+
+    return item;
+  }
 
 
 
@@ -485,15 +537,48 @@ export class PlayerComponent implements OnInit {
    this.worldItems.forEach((item: Item, key: number) => {
 
     if(didCollide(this.player.rect, item.rect)){
-      item.usedState = true;
-      item.img = this.ITEM_USED_IMAGE;
-      setTimeout(() => { this.removeEnemy(item.id); }, 6000);
+      if (item.usedState){
+
+      }
+      else{
+        item.usedState = true;
+        item.img = this.ITEM_USED_IMAGE;
+        this.addToInventory(item);
+      }
     }
 
    });   
 
 
   }
+  
+   
+  putItemInInventory(item: Item){
+    this.invetoryItemIds = this.invetoryItemIds+1;
+
+    item.id = this.invetoryItemIds;
+    item.rect.x = 0;
+    item.rect.y = 0;
+    item.state.top = '0px';
+    item.state.left = '0px';
+    item.state.position = 'static';
+    item.state.display = 'inline';
+    this.inventoryItems.set(item.id, item);
+  }
+
+
+  addToInventory(item: Item){
+
+    if (item.isContainer){
+      item.nestedItems.forEach((item: Item) => {
+        this.putItemInInventory(item);
+      })
+    }
+    else{
+      this.putItemInInventory(item);
+    }
+  }
+
 
   getBulletImage(id: number){
     return this.bullets.get(id).img;
@@ -518,6 +603,15 @@ export class PlayerComponent implements OnInit {
 
   getItemState(id: number){
     return this.worldItems.get(id).state;
+  }
+
+
+  getInvetoryItemImage(id: number){
+    return this.inventoryItems.get(id).img;
+  }
+
+  getInventoryItemState(id: number){
+    return this.inventoryItems.get(id).state;
   }
 
   handleAI(){

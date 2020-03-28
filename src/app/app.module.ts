@@ -6,6 +6,8 @@ import { MainAppComponent } from './main-app/main-app.component';
 import { PlayerComponent } from './player/player.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { MatExpansionModule } from '@angular/material/expansion';
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { HighchartsChartModule } from 'highcharts-angular';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    HighchartsChartModule
+    HighchartsChartModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

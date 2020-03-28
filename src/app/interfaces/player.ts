@@ -40,6 +40,8 @@ export interface Item {
   usedState: boolean;
   state: State;
   img: string
+  isContainer: boolean;
+  nestedItems: Item [];
 }
 
 
