@@ -1,6 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import {HostListener} from '@angular/core';
 import {Player, Rect, State, Bullet, Direction, Item} from '../interfaces/player';
+import * as Highcharts from 'highcharts';
+// Load the exporting module.
+import Exporting from 'highcharts/modules/exporting';
+
+
+
+
+
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
@@ -41,7 +49,14 @@ export class PlayerComponent implements OnInit {
   readonly ITEM_IMAGE: string = "assets/treasure-chest.png";
   readonly ITEM_UNUSED_IMAGE: string = "assets/treasure-chest.png";
   readonly ITEM_USED_IMAGE: string = "assets/treasure-chest-used.png";
-  
+  Highcharts = Highcharts;
+  playerHealthRemaining: number = 100.0;
+  playerDamageTaken: number = 0;
+  series: Highcharts.Series;
+  chart: Highcharts.Chart;
+  chartOptions: Highcharts.Options;
+  canTakeDamage: boolean = true;
+
   ngOnInit() {
 
     this.enemies = new Map<number, Player>();
@@ -73,6 +88,75 @@ export class PlayerComponent implements OnInit {
       img: this.PLAYER_ALIVE_IMAGE
     }
 
+    //this.series = new Highcharts.Series();
+    //this.chart = new Highcharts.Chart();
+    var what = this;
+    this.chartOptions = {
+      chart: {
+        backgroundColor: null,
+        events: {
+          load: function () {
+             // set up the updating of the chart each second
+             var series = this.series[0];
+             var self = this;
+             setInterval(function () {
+              series.setData([
+                ['Health Remaining', what.playerHealthRemaining],
+                ['Damage Taken', what.playerDamageTaken]
+            ],true);
+             }, 1000);
+          }
+       }
+      },
+      plotOptions: {
+        series: {
+            dataLabels: {
+                enabled: false
+            }
+        }
+    },
+      title: {
+          text: '',
+          align: 'right',
+          verticalAlign: 'top',
+          y: 80
+      },
+      tooltip: {
+          pointFormat: ''
+      },
+      series: [{
+          type: 'pie',
+          colors: [
+            '#50B432', 
+            '#ED561B', 
+            '#DDDF00', 
+            '#24CBE5', 
+            '#64E572', 
+            '#FF9655', 
+            '#FFF263', 
+            '#6AF9C4'
+          ],
+          name: 'Player Health',
+          innerSize: '50%',
+          data: [
+              ['Health Remaining', this.playerHealthRemaining],
+              ['Damage Taken', this.playerDamageTaken]
+          ],
+          dataLabels: {
+            enabled: false
+          },
+      }],
+      exporting: {
+        enabled: false
+      },
+      credits: {
+        enabled: false
+    },
+    
+    };
+    // Initialize exporting module. (CommonJS only)
+    Exporting(Highcharts);
+    
     this.keyDown = {};
     this.createItems();
     this.gameLoop();
@@ -95,6 +179,10 @@ export class PlayerComponent implements OnInit {
     return;
   }
   
+
+  canTakeDamageToggle(){
+    this.canTakeDamage = true;
+  }
 
   gameLoop() {
 
@@ -365,10 +453,15 @@ export class PlayerComponent implements OnInit {
     this.enemies.forEach((enemy: Player, key: number) => {
 
       if(didCollide(this.player.rect, enemy.rect)){
-        enemy.dead = true;
-        enemy.img = this.ENEMY_DEAD_IMAGE
-        setTimeout(() => { this.removeEnemy(enemy.id); }, 6000);
-      }
+        if (this.canTakeDamage){
+          this.canTakeDamage = false;
+          setInterval(() => { this.canTakeDamageToggle(); }, 1000);
+          this.playerHealthRemaining = this.playerHealthRemaining - 5;
+          this.playerDamageTaken = this.playerDamageTaken + 5;
+        }
+        if (this.playerHealthRemaining == 0){
+          this.player.dead = true;
+      }};
 
      if (enemy.dead){
      }

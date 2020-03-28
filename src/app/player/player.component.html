@@ -4,12 +4,11 @@
   <input type="image" *ngFor="let enemy of enemies | keyvalue" [ngStyle]="getEnemyState(enemy.value.id)" [src]="getEnemyImage(enemy.value.id)">
   <input type="image" *ngFor="let bullet of bullets | keyvalue" [ngStyle]="getBulletState(bullet.value.id)" [src]="getBulletImage(bullet.value.id)">
   <input type="image" *ngFor="let item of worldItems | keyvalue" [ngStyle]="getItemState(item.value.id)" [src]="getItemImage(item.value.id)">
-  <div class="debug">
-    <div>{{getEnemyStateJSON(0)}}</div>
-    <div>{{enemiesCreation}}</div>
-    <div>{{enemiesNotCreation}}</div>
-  </div>
-  <div class="debugClicks">
-    <div>{{numberOfClicks}}</div>
+  <div class="playerHealth">
+    <highcharts-chart 
+    [Highcharts]="Highcharts"
+    [options]="chartOptions"
+    style="width: 100%; height: 100%; display: block;"
+  ></highcharts-chart>
   </div>
 </div>

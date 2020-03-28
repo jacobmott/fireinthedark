@@ -24,3 +24,14 @@
   top:0;
   right:300;
 }
+
+
+.playerHealth{
+  z-index: 1;
+  position: relative;
+  float: right;
+  width: 10%;
+  height: 600px;
+  top:0;
+  left:0;
+}
