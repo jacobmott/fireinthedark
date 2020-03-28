@@ -31,23 +31,30 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## TODO
 
-* Update player shoting functionality to use mose click event position to figure out direction to shot the bullet
+* [ ] Update player shoting functionality to use mose click event position to figure out direction to shot the bullet
     * Currently when the player shots, the bullet is shot out based on the direction the player is moving in
 
-* Add inventory interaction
+* [ ] Add inventory interaction
     * Currently the player has an inventory with health items, but they cant interact with them
 
-* Add game state (End/Start)
+* [ ] Add game state (End/Start)
     * Add player death
       * Currently the player doesn't die when thier health reaches 0
   
-* Create some sort of vector that I can have an addition/subtraction operation on.. so i can just add/subtract to vectors
+* [ ] Create some sort of vector that I can have an addition/subtraction operation on.. so i can just add/subtract to vectors
     * Can also do ditance formulas and everything else vectors support
     * Currently im just tracking an x and y positions and checking thier pos/neg values to determine + or - operations
 
-* Work on using/intergrating angular animations
+* [ ] Work on using/intergrating angular animations
     * Currently im just update the items on screens datastructure in the component which affects the css style
     * A call is made to get the current style dynamically, which generates the style from the items state/datastructure
+
+* [ ] Get my royalty free image files from Humble Bundle
+    * I purchased a bunch on there
+    * Currently im just using placeholder images from google images, and doctoring them up (Transparency) in sketchbook
+
+* [ ] Implement character animation (use anuglar animation)
+    * Currently the enemies/player just move around, but thier image stays the same/static (no animation)
 
 
 
