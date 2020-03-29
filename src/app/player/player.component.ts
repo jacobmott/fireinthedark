@@ -37,11 +37,12 @@ export class PlayerComponent implements OnInit {
   readonly FPS: number = 100;
   readonly PLAYER_SPEED: number = 800;
   readonly ENEMY_SPEED: number = 300;
-  readonly BULLET_SPEED: number = 2000;
+  readonly BULLET_SPEED: number = 4000;
   readonly ITEM_SPEED: number = 0;
   callCreate: number = 0;
   numberOfClicks: number = 0;
   leftClick: boolean = false;
+  clickEvent;
   bullets: Map<number, Bullet> = new Map<number, Bullet>();
   bulletDirectionX: number = 0;
   bulletDirectionY: number = 0; 
@@ -61,6 +62,7 @@ export class PlayerComponent implements OnInit {
   readonly ITEM_UNUSED_IMAGE: string = "assets/treasure-chest.png";
   readonly ITEM_USED_IMAGE: string = "assets/treasure-chest-used.png";
   readonly HEALTH_POTION_UNUSED_IMAGE: string = "assets/health-potion.png";
+  readonly HEALTH_POTION_USED_IMAGE: string = "assets/health-potion-used.png";
 
   Highcharts = Highcharts;
   playerHealthRemaining: number = 100.0;
@@ -175,7 +177,11 @@ export class PlayerComponent implements OnInit {
     this.keyDown = {};
     this.createItems();
     this.gameLoop();
-    this.createNextEnemyTimer = setInterval(() => { this.addNewEnemy(400, 400); }, 3000);
+    this.createNextEnemyTimer = setInterval(() => { 
+      let xPos: number = this.getRandomInt(0,1000);
+      let yPos: number = this.getRandomInt(0,1000);
+      this.addNewEnemy(xPos, yPos); 
+    }, 3000);
     this.initialized = true;
   }
 
@@ -203,48 +209,51 @@ export class PlayerComponent implements OnInit {
 
       this.gameLoopF = setInterval(() => {
 
-        let bulletDirectionX = 0;
-        let bulletDirectionY = 0;
-
         if(this.keyDown["d"]) {
-          bulletDirectionX = 1;
           this.player.rect.x += this.player.speed/this.FPS;
         }
         if(this.keyDown["a"]) {
-          bulletDirectionX = -1;
           this.player.rect.x -= this.player.speed/this.FPS;
         }
         if(this.keyDown["w"]) {
-          bulletDirectionY = -1;
           this.player.rect.y -=  this.player.speed/this.FPS;
         }
         if(this.keyDown["s"]) {
-          bulletDirectionY = 1;
           this.player.rect.y +=  this.player.speed/this.FPS;
         }
 
 
         if(this.leftClick) {
           if (this.createNextBullet){
+            //let playerXPos = this.player.rect.x;
+            //let playerYPos = this.player.rect.y;
+            //console.log("this.clickEvent.clientX: "+this.clickEvent.clientX);
+            //console.log("this.clickEvent.clientY: "+this.clickEvent.clientY);
+            //console.log("xPos: "+playerXPos);
+            //console.log("yPos: "+playerYPos);
+            //let bulletDirectionX = this.clickEvent.clientX-playerXPos;
+            //bulletDirectionX = bulletDirectionX/Math.abs(bulletDirectionX);
+            //let bulletDirectionY = this.clickEvent.clientY-playerYPos;
+            //bulletDirectionY = bulletDirectionY/Math.abs(bulletDirectionY);
+            //console.log("bulletDirectionX: "+bulletDirectionX);
+            //console.log("bulletDirectionY: "+bulletDirectionY);
+            //if (!bulletDirectionX && !bulletDirectionY){
+            //  bulletDirectionX = -1;
+            //}
+
             let xPos = this.player.rect.x;
-            let yPos = this.player.rect.y;      
-            if (!bulletDirectionX && !bulletDirectionY){
-              bulletDirectionX = -1;
-            }
+            let yPos = this.player.rect.y;
+            let bulletDirectionX = this.clickEvent.clientX-xPos;
+            let bulletDirectionY = this.clickEvent.clientY-yPos;
+            let length: number = Math.sqrt(bulletDirectionX*bulletDirectionX+bulletDirectionY*bulletDirectionY);
+            //console.log("bulletDirectionX: "+bulletDirectionX);
+            //console.log("bulletDirectionY: "+bulletDirectionY);
+            bulletDirectionX = bulletDirectionX/length;
+            bulletDirectionY = bulletDirectionY/length;
 
-            if (bulletDirectionX === 1){
-              xPos = this.player.rect.x + this.player.rect.width-50;
-            }
-            else if (bulletDirectionX === 0 || bulletDirectionX === -1){
-              xPos = this.player.rect.x;
-            }
-
-            if (bulletDirectionY === 1){
-              yPos = this.player.rect.y + this.player.rect.height-50;
-            }
-            else if (bulletDirectionY === 0 || bulletDirectionY === -1){
-              yPos = this.player.rect.y;
-            }
+            let scaleSpeedByFPS = (this.BULLET_SPEED/this.FPS);
+            bulletDirectionX = bulletDirectionX*scaleSpeedByFPS;
+            bulletDirectionY = bulletDirectionY*scaleSpeedByFPS;
 
             this.createNewBullet(bulletDirectionX, bulletDirectionY, xPos, yPos);
             this.createNextBullet = false;
@@ -363,6 +372,7 @@ export class PlayerComponent implements OnInit {
   onMouseDown(event) {
     //console.log('button', btn, 'number of clicks:', this.numberOfClicks++);
     this.leftClick = true;
+    this.clickEvent = event;
   }
 
   @HostListener('document:mouseup', ['$event'])
@@ -439,8 +449,8 @@ export class PlayerComponent implements OnInit {
           this.bullets.delete(bullet.id);
         }
         else{
-          bullet.rect.x = bullet.rect.x+(bullet.direction.x*(this.BULLET_SPEED/this.FPS));
-          bullet.rect.y = bullet.rect.y+(bullet.direction.y*(this.BULLET_SPEED/this.FPS));
+          bullet.rect.x = bullet.rect.x+bullet.direction.x;
+          bullet.rect.y = bullet.rect.y+bullet.direction.y;
           bullet.state.left = bullet.rect.x+"px";
           bullet.state.top = bullet.rect.y+"px";
         }
