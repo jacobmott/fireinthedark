@@ -31,8 +31,10 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## TODO
 
-* [ ] Update player shoting functionality to use mose click event position to figure out direction to shot the bullet
+* [X] Update player shoting functionality to use mose click event position to figure out direction to shot the bullet
     * Currently when the player shots, the bullet is shot out based on the direction the player is moving in
+* [] Update player shoting functionality to use mose click event position every click
+    * Currently if you hold down left click.. it wont update the vector/direction.. and all bullets will travel to the original click position
 
 * [ ] Add inventory interaction
     * Currently the player has an inventory with health items, but they cant interact with them
