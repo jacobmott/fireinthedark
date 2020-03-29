@@ -180,8 +180,7 @@ export class PlayerComponent implements OnInit {
     this.createNextEnemyTimer = setInterval(() => { 
       let xPos: number = this.getRandomInt(0,1000);
       let yPos: number = this.getRandomInt(0,1000);
-      this.addNewEnemy(xPos, yPos); 
-    }, 3000);
+      this.addNewEnemy(xPos, yPos); }, 3000);
     this.initialized = true;
   }
 
@@ -225,32 +224,13 @@ export class PlayerComponent implements OnInit {
 
         if(this.leftClick) {
           if (this.createNextBullet){
-            //let playerXPos = this.player.rect.x;
-            //let playerYPos = this.player.rect.y;
-            //console.log("this.clickEvent.clientX: "+this.clickEvent.clientX);
-            //console.log("this.clickEvent.clientY: "+this.clickEvent.clientY);
-            //console.log("xPos: "+playerXPos);
-            //console.log("yPos: "+playerYPos);
-            //let bulletDirectionX = this.clickEvent.clientX-playerXPos;
-            //bulletDirectionX = bulletDirectionX/Math.abs(bulletDirectionX);
-            //let bulletDirectionY = this.clickEvent.clientY-playerYPos;
-            //bulletDirectionY = bulletDirectionY/Math.abs(bulletDirectionY);
-            //console.log("bulletDirectionX: "+bulletDirectionX);
-            //console.log("bulletDirectionY: "+bulletDirectionY);
-            //if (!bulletDirectionX && !bulletDirectionY){
-            //  bulletDirectionX = -1;
-            //}
-
             let xPos = this.player.rect.x;
             let yPos = this.player.rect.y;
             let bulletDirectionX = this.clickEvent.clientX-xPos;
             let bulletDirectionY = this.clickEvent.clientY-yPos;
             let length: number = Math.sqrt(bulletDirectionX*bulletDirectionX+bulletDirectionY*bulletDirectionY);
-            //console.log("bulletDirectionX: "+bulletDirectionX);
-            //console.log("bulletDirectionY: "+bulletDirectionY);
             bulletDirectionX = bulletDirectionX/length;
             bulletDirectionY = bulletDirectionY/length;
-
             let scaleSpeedByFPS = (this.BULLET_SPEED/this.FPS);
             bulletDirectionX = bulletDirectionX*scaleSpeedByFPS;
             bulletDirectionY = bulletDirectionY*scaleSpeedByFPS;
@@ -466,6 +446,9 @@ export class PlayerComponent implements OnInit {
   addNewEnemy(xPos: number, yPos: number){
   
     this.enemyIds = this.enemyIds+1;
+    if (this.enemies.size > 5){
+      return;
+    }
 
     let rect: Rect = { 
       x: xPos,
