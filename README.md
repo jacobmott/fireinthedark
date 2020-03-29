@@ -33,11 +33,14 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 * [X] Update player shoting functionality to use mose click event position to figure out direction to shot the bullet
     * Currently when the player shots, the bullet is shot out based on the direction the player is moving in
-* [ ] Update player shoting functionality to use mose click event position every click
+* [X] Update player shoting functionality to use mose click event position every click
     * Currently if you hold down left click.. it wont update the vector/direction.. and all bullets will travel to the original click position
 
-* [ ] Add inventory interaction
+* [x] Add inventory interaction
     * Currently the player has an inventory with health items, but they cant interact with them
+* [ ] Fix player health when using health pot
+    * Currently we track health and dmg for the pie chart, but it only does 100 values well when it divides them
+    * Need to just track health and then deduce dmg taken so we dont have to update to values
 
 * [ ] Add game state (End/Start)
     * Add player death

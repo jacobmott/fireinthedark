@@ -18,7 +18,7 @@
           Inventory
         </mat-panel-description>
       </mat-expansion-panel-header>
-        <input type="image" *ngFor="let inventoryItem of inventoryItems | keyvalue" [ngStyle]="getInventoryItemState(inventoryItem.value.id)" [src]="getInvetoryItemImage(inventoryItem.value.id)">    
+        <input type="image" (click)="itemClicked(inventoryItem.value.id)" *ngFor="let inventoryItem of inventoryItems | keyvalue" [ngStyle]="getInventoryItemState(inventoryItem.value.id)" [src]="getInvetoryItemImage(inventoryItem.value.id)">    
     </mat-expansion-panel>
   </div>
 </div>

@@ -42,6 +42,7 @@ export interface Item {
   img: string
   isContainer: boolean;
   nestedItems: Item [];
+  type: string;
 }
 
 

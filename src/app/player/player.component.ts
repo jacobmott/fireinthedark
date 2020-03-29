@@ -36,13 +36,14 @@ export class PlayerComponent implements OnInit {
   createEnemiesCall;
   readonly FPS: number = 100;
   readonly PLAYER_SPEED: number = 800;
-  readonly ENEMY_SPEED: number = 300;
-  readonly BULLET_SPEED: number = 4000;
+  readonly ENEMY_SPEED: number = 500;
+  readonly BULLET_SPEED: number = 6000;
   readonly ITEM_SPEED: number = 0;
   callCreate: number = 0;
   numberOfClicks: number = 0;
   leftClick: boolean = false;
   clickEvent;
+  mouseCurrentPosEvent;
   bullets: Map<number, Bullet> = new Map<number, Bullet>();
   bulletDirectionX: number = 0;
   bulletDirectionY: number = 0; 
@@ -178,8 +179,8 @@ export class PlayerComponent implements OnInit {
     this.createItems();
     this.gameLoop();
     this.createNextEnemyTimer = setInterval(() => { 
-      let xPos: number = this.getRandomInt(0,1000);
-      let yPos: number = this.getRandomInt(0,1000);
+      let xPos: number = this.getRandomInt(0,1900);
+      let yPos: number = this.getRandomInt(0,1900);
       this.addNewEnemy(xPos, yPos); }, 3000);
     this.initialized = true;
   }
@@ -201,6 +202,28 @@ export class PlayerComponent implements OnInit {
   
   canTakeDamageToggle(){
     this.canTakeDamage = true;
+  }
+
+  itemClicked(id: number){
+
+    let item =  this.inventoryItems.get(id);
+    if (item.usedState){return;}
+
+    if(item.type === 'health'){
+      this.addHealthToPlayer(this.player);
+      this.updateItemToUsedState(item);
+    }
+  }
+
+
+  updateItemToUsedState(item: Item){
+    item.usedState = true;
+    item.img = this.HEALTH_POTION_USED_IMAGE;
+  }
+
+  addHealthToPlayer(player: Player){
+    this.playerHealthRemaining = this.playerHealthRemaining+50;
+    this.playerDamageTaken = this.playerDamageTaken-50;
   }
 
   gameLoop() {
@@ -226,8 +249,8 @@ export class PlayerComponent implements OnInit {
           if (this.createNextBullet){
             let xPos = this.player.rect.x;
             let yPos = this.player.rect.y;
-            let bulletDirectionX = this.clickEvent.clientX-xPos;
-            let bulletDirectionY = this.clickEvent.clientY-yPos;
+            let bulletDirectionX = this.mouseCurrentPosEvent.clientX-xPos;
+            let bulletDirectionY = this.mouseCurrentPosEvent.clientY-yPos;
             let length: number = Math.sqrt(bulletDirectionX*bulletDirectionX+bulletDirectionY*bulletDirectionY);
             bulletDirectionX = bulletDirectionX/length;
             bulletDirectionY = bulletDirectionY/length;
@@ -303,7 +326,8 @@ export class PlayerComponent implements OnInit {
       usedState: false,
       img: this.ITEM_UNUSED_IMAGE,
       isContainer: true,
-      nestedItems: []
+      nestedItems: [],
+      type: "chest"
     }
 
     let healthPotion: Item = this.createNewHealthPotionItem();
@@ -340,7 +364,8 @@ export class PlayerComponent implements OnInit {
       usedState: false,
       img: this.HEALTH_POTION_UNUSED_IMAGE,
       isContainer: false,
-      nestedItems: []
+      nestedItems: [],
+      type: "health"
     }
 
     return item;
@@ -353,6 +378,11 @@ export class PlayerComponent implements OnInit {
     //console.log('button', btn, 'number of clicks:', this.numberOfClicks++);
     this.leftClick = true;
     this.clickEvent = event;
+  }
+
+  @HostListener('mousemove', ['$event'])
+  handleMousemove(event) {
+    this.mouseCurrentPosEvent = event;
   }
 
   @HostListener('document:mouseup', ['$event'])
@@ -446,7 +476,7 @@ export class PlayerComponent implements OnInit {
   addNewEnemy(xPos: number, yPos: number){
   
     this.enemyIds = this.enemyIds+1;
-    if (this.enemies.size > 5){
+    if (this.enemies.size === 5){
       return;
     }
 
@@ -498,6 +528,10 @@ export class PlayerComponent implements OnInit {
     this.enemies.forEach((enemy: Player, key: number) => {
 
       if(didCollide(this.player.rect, enemy.rect)){
+        if (enemy.dead){ 
+          //This actually skips and iteration since we are in a function
+          return; 
+        }
         if (this.canTakeDamage){
           this.canTakeDamage = false;
           setInterval(() => { this.canTakeDamageToggle(); }, 1000);
