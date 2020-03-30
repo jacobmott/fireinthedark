@@ -27,6 +27,26 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 
+## Helpful links
+*  Creating-isometric-worlds-a-primer-for-game-developers
+     * https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-a-primer-for-game-developers--gamedev-6511
+
+* Angular Animations - transition-and-triggers
+     * https://angular.io/guide/transition-and-triggers
+
+* Envato Market - Game assets - isometric assets
+     * https://graphicriver.net/graphics-with-isometric-in-game-assets?_ga=2.15940918.1677383907.1585510672-762106576.1585510672&as=1&referrer=homepage&type=c&utf8=%E2%9C%93
+    
+* CSS Position explained site
+     * https://www.freecodecamp.org/news/how-to-use-the-position-property-in-css-to-align-elements-d8f49c403a26/
+
+* Tileset sites
+    * https://www.mapeditor.org/
+    * https://github.com/andrewrk/node-tmx-parser
+    * https://opengameart.org/content/isometric-64x64-outside-tileset
+    * https://opengameart.org/content/isometric-tiles
+    * https://graphicriver.net/item/the-green-isometric-tileset/20796124
+    * https://www.gamedevmarket.net/user/login/
 
 
 ## TODO
